@@ -7,88 +7,330 @@
     <title>96 孔盤實驗規劃器</title>
 
     <style>
+
         body {
             font-family: Arial, sans-serif;
             text-align: center;
-            margin: 40px;
+            margin: 30px;
+            background-color: #f5f5f5;
         }
 
         h1 {
-            margin-bottom: 30px;
+            margin-bottom: 10px;
         }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 25px;
+        }
+
+        /* =========================
+           實驗組別按鈕
+           ========================= */
+
+        .group-panel {
+            margin-bottom: 25px;
+        }
+
+        .group-button {
+            border: none;
+            border-radius: 8px;
+
+            padding: 10px 16px;
+
+            margin: 5px;
+
+            cursor: pointer;
+
+            font-size: 14px;
+
+            background-color: white;
+
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+        }
+
+        .group-button:hover {
+            transform: translateY(-1px);
+        }
+
+        .group-button.selected {
+            outline: 3px solid #333;
+        }
+
+        /* =========================
+           96 孔盤
+           ========================= */
 
         .plate {
             display: grid;
-            grid-template-columns: 40px repeat(12, 45px);
+
+            grid-template-columns:
+                40px
+                repeat(12, 48px);
+
             gap: 8px;
+
             justify-content: center;
+
+            margin: 20px auto;
         }
+
+        /* A-H、1-12 標籤 */
 
         .label {
             display: flex;
+
             align-items: center;
+
             justify-content: center;
+
             font-weight: bold;
+
+            color: #444;
         }
 
+        /* =========================
+           孔
+           ========================= */
+
         .well {
-            width: 45px;
-            height: 45px;
+            width: 48px;
+
+            height: 48px;
 
             border-radius: 50%;
 
-            border: 2px solid #888;
+            border: 2px solid #999;
 
             background-color: white;
 
             cursor: pointer;
+
+            transition: 0.15s;
         }
 
         .well:hover {
-            background-color: #eeeeee;
+            transform: scale(1.08);
         }
 
-        .well.selected {
-            background-color: lightblue;
+        /* =========================
+           不同實驗組別
+           ========================= */
+
+        .well.blank {
+            background-color: #d9d9d9;
         }
+
+        .well.control {
+            background-color: #a8d8ff;
+        }
+
+        .well.vehicle {
+            background-color: #d6f5c9;
+        }
+
+        .well.metformin10 {
+            background-color: #fff0a8;
+        }
+
+        .well.metformin20 {
+            background-color: #ffd28a;
+        }
+
+        .well.metformin25 {
+            background-color: #ffb38a;
+        }
+
+        .well.metformin30 {
+            background-color: #ff8f8f;
+        }
+
+        /* =========================
+           資訊區
+           ========================= */
+
+        #message {
+            font-size: 18px;
+
+            font-weight: bold;
+
+            margin-top: 20px;
+        }
+
+        #currentGroup {
+            margin-top: 10px;
+
+            color: #555;
+        }
+
     </style>
+
 </head>
+
 
 <body>
 
     <h1>96 孔盤實驗規劃器</h1>
 
+    <div class="subtitle">
+        第 4 堂：實驗組別配置
+    </div>
+
+
+    <!-- =========================
+         實驗組別按鈕
+         ========================= -->
+
+    <div class="group-panel">
+
+        <button
+            class="group-button"
+            data-group="blank">
+            Blank
+        </button>
+
+        <button
+            class="group-button"
+            data-group="control">
+            Control
+        </button>
+
+        <button
+            class="group-button"
+            data-group="vehicle">
+            Vehicle
+        </button>
+
+        <button
+            class="group-button"
+            data-group="metformin10">
+            Metformin 10 μM
+        </button>
+
+        <button
+            class="group-button"
+            data-group="metformin20">
+            Metformin 20 μM
+        </button>
+
+        <button
+            class="group-button"
+            data-group="metformin25">
+            Metformin 25 μM
+        </button>
+
+        <button
+            class="group-button"
+            data-group="metformin30">
+            Metformin 30 μM
+        </button>
+
+    </div>
+
+
+    <!-- =========================
+         96 孔盤
+         ========================= -->
+
     <div id="plate" class="plate"></div>
 
-    <p id="message">請點選一個孔</p>
+
+    <!-- =========================
+         訊息
+         ========================= -->
+
+    <div id="currentGroup">
+        尚未選擇實驗組別
+    </div>
+
+    <div id="message">
+        請先選擇實驗組別，再點選孔
+    </div>
+
 
     <script>
 
-        const plate = document.getElementById("plate");
+        /* ========================================
+           取得 HTML 元素
+           ======================================== */
 
-        const rows = ["A", "B", "C", "D", "E", "F", "G", "H"];
+        const plate =
+            document.getElementById("plate");
 
-        // 建立左上角空白位置
-        const emptyCorner = document.createElement("div");
+        const message =
+            document.getElementById("message");
+
+        const currentGroup =
+            document.getElementById("currentGroup");
+
+
+        /* ========================================
+           A-H
+           ======================================== */
+
+        const rows = [
+            "A",
+            "B",
+            "C",
+            "D",
+            "E",
+            "F",
+            "G",
+            "H"
+        ];
+
+
+        /* ========================================
+           儲存目前選擇的實驗組別
+           ======================================== */
+
+        let selectedGroup = null;
+
+
+        /* ========================================
+           建立左上角空白位置
+           ======================================== */
+
+        const emptyCorner =
+            document.createElement("div");
+
         plate.appendChild(emptyCorner);
 
-        // 建立 1～12 欄位名稱
-        for (let col = 1; col <= 12; col++) {
 
-            const label = document.createElement("div");
+        /* ========================================
+           建立 1-12 欄位
+           ======================================== */
+
+        for (
+            let col = 1;
+            col <= 12;
+            col++
+        ) {
+
+            const label =
+                document.createElement("div");
 
             label.classList.add("label");
 
             label.textContent = col;
 
             plate.appendChild(label);
+
         }
 
-        // 建立 8 × 12 = 96 個孔
+
+        /* ========================================
+           建立 96 個孔
+           ======================================== */
+
         for (let row of rows) {
 
-            // 建立 A～H 的列名稱
-            const rowLabel = document.createElement("div");
+            /* -------------------------
+               建立 A-H 列標籤
+               ------------------------- */
+
+            const rowLabel =
+                document.createElement("div");
 
             rowLabel.classList.add("label");
 
@@ -96,28 +338,169 @@
 
             plate.appendChild(rowLabel);
 
-            for (let col = 1; col <= 12; col++) {
 
-                const well = document.createElement("button");
+            /* -------------------------
+               每一列建立 12 個孔
+               ------------------------- */
+
+            for (
+                let col = 1;
+                col <= 12;
+                col++
+            ) {
+
+                const well =
+                    document.createElement("button");
+
 
                 well.classList.add("well");
 
-                well.textContent = "";
 
-                well.dataset.position = row + col;
+                /*
+                 * 儲存孔的位置
+                 *
+                 * 例如：
+                 * A1
+                 * B5
+                 * H12
+                 */
 
-                well.addEventListener("click", function () {
+                const position =
+                    row + col;
 
-                    well.classList.toggle("selected");
 
-                    document.getElementById("message").textContent =
-                        "你選擇了 " + well.dataset.position;
+                well.dataset.position =
+                    position;
 
-                });
+
+                /* -------------------------
+                   點擊孔
+                   ------------------------- */
+
+                well.addEventListener(
+                    "click",
+                    function () {
+
+                        /*
+                         * 如果沒有選擇實驗組別，
+                         * 不允許設定
+                         */
+
+                        if (!selectedGroup) {
+
+                            message.textContent =
+                                "請先選擇實驗組別";
+
+                            return;
+
+                        }
+
+
+                        /*
+                         * 移除原本的組別
+                         */
+
+                        well.classList.remove(
+                            "blank",
+                            "control",
+                            "vehicle",
+                            "metformin10",
+                            "metformin20",
+                            "metformin25",
+                            "metformin30"
+                        );
+
+
+                        /*
+                         * 加入新的組別
+                         */
+
+                        well.classList.add(
+                            selectedGroup
+                        );
+
+
+                        /*
+                         * 顯示操作結果
+                         */
+
+                        message.textContent =
+                            position +
+                            " → " +
+                            selectedGroup;
+
+                    }
+                );
+
 
                 plate.appendChild(well);
+
             }
         }
+
+
+        /* ========================================
+           實驗組別按鈕
+           ======================================== */
+
+        const groupButtons =
+            document.querySelectorAll(
+                ".group-button"
+            );
+
+
+        groupButtons.forEach(
+            function (button) {
+
+                button.addEventListener(
+                    "click",
+                    function () {
+
+                        /*
+                         * 取得這顆按鈕代表的組別
+                         */
+
+                        selectedGroup =
+                            button.dataset.group;
+
+
+                        /*
+                         * 移除所有按鈕的 selected
+                         */
+
+                        groupButtons.forEach(
+                            function (btn) {
+
+                                btn.classList.remove(
+                                    "selected"
+                                );
+
+                            }
+                        );
+
+
+                        /*
+                         * 標記目前選擇的按鈕
+                         */
+
+                        button.classList.add(
+                            "selected"
+                        );
+
+
+                        /*
+                         * 顯示目前選擇
+                         */
+
+                        currentGroup.textContent =
+                            "目前選擇：" +
+                            button.textContent.trim();
+
+                    }
+                );
+
+            }
+        );
 
     </script>
 

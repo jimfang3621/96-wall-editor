@@ -5,15 +5,121 @@
     <meta charset="UTF-8">
 
     <title>96 孔盤實驗規劃器</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 40px;
+        }
+
+        h1 {
+            margin-bottom: 30px;
+        }
+
+        .plate {
+            display: grid;
+            grid-template-columns: 40px repeat(12, 45px);
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .well {
+            width: 45px;
+            height: 45px;
+
+            border-radius: 50%;
+
+            border: 2px solid #888;
+
+            background-color: white;
+
+            cursor: pointer;
+        }
+
+        .well:hover {
+            background-color: #eeeeee;
+        }
+
+        .well.selected {
+            background-color: lightblue;
+        }
+    </style>
 </head>
 
 <body>
 
     <h1>96 孔盤實驗規劃器</h1>
 
-    <p>我的第一個實驗網站！</p>
+    <div id="plate" class="plate"></div>
 
-    <p>目前正在學習 HTML、CSS 與 JavaScript。</p>
+    <p id="message">請點選一個孔</p>
+
+    <script>
+
+        const plate = document.getElementById("plate");
+
+        const rows = ["A", "B", "C", "D", "E", "F", "G", "H"];
+
+        // 建立左上角空白位置
+        const emptyCorner = document.createElement("div");
+        plate.appendChild(emptyCorner);
+
+        // 建立 1～12 欄位名稱
+        for (let col = 1; col <= 12; col++) {
+
+            const label = document.createElement("div");
+
+            label.classList.add("label");
+
+            label.textContent = col;
+
+            plate.appendChild(label);
+        }
+
+        // 建立 8 × 12 = 96 個孔
+        for (let row of rows) {
+
+            // 建立 A～H 的列名稱
+            const rowLabel = document.createElement("div");
+
+            rowLabel.classList.add("label");
+
+            rowLabel.textContent = row;
+
+            plate.appendChild(rowLabel);
+
+            for (let col = 1; col <= 12; col++) {
+
+                const well = document.createElement("button");
+
+                well.classList.add("well");
+
+                well.textContent = "";
+
+                well.dataset.position = row + col;
+
+                well.addEventListener("click", function () {
+
+                    well.classList.toggle("selected");
+
+                    document.getElementById("message").textContent =
+                        "你選擇了 " + well.dataset.position;
+
+                });
+
+                plate.appendChild(well);
+            }
+        }
+
+    </script>
 
 </body>
 
